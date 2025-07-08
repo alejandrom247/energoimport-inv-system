@@ -1,0 +1,281 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  //output   = "../src/generated/prisma"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  iduser String @id @default(cuid())
+  name String
+  lastname String
+  email String @unique
+  avatar_url String?
+  username String @unique
+  password String
+  id_role String
+  role Role @relation(fields: [id_role], references: [id_role])
+  tasks Task[]
+  notifications Notification[]
+  events Event[]
+  createdComputers Computer[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("user")
+}
+
+model Role {
+  id_role String @id @default(cuid())
+  users User[]
+  name String
+  active Boolean
+
+  @@map("role")
+}
+
+model Computer {
+  id_computer String @id @default(cuid())
+  id_department String
+  motherboard Motherboard?
+  monitor Monitor?
+  cpu CPU?
+  ram RAM[]
+  hdd HDD[]
+  printer Printer[]
+  disket Diskett?
+  keyboard Keyboard?
+  mouse Mouse?
+  speaker Speaker?
+  power_supply Power_Supply?
+  peripheral Peripheral?
+  ups UPS?
+  department Department @relation(fields: [id_department], references: [id_department])
+  name String
+  username String
+  type Type
+  os String
+  no_inv Int
+  total_rmemory Int
+  total_dmemory Int
+  state String
+  event Event[]
+  id_user String
+  createdBy User @relation(fields: [id_user], references: [iduser])
+
+  @@map("computer")
+}
+
+enum Type {
+  Escritorio
+  Laptop
+}
+
+model Department {
+  id_department String @id @default(cuid())
+  name String
+  computers Computer[]
+  active Boolean
+
+  @@map("department")
+}
+
+model Task {
+  id_task String @id @default(cuid())
+  description String
+  start_date DateTime @default(now())
+  end_date DateTime
+  id_user String
+  user User @relation(fields: [id_user], references: [iduser], onDelete: Cascade, onUpdate: Cascade)
+
+  @@map("task")
+}
+
+model Notification {
+  id_notification String @id @default(cuid())
+  type String
+  text String
+  isRead Boolean
+  id_user String
+  user User @relation(fields: [id_user], references: [iduser], onDelete: Cascade, onUpdate: Cascade)
+
+  @@map("notification")
+}
+
+model Event {
+  id_event String @id @default(cuid())
+  computer Computer @relation(fields: [id_computer], references: [id_computer], onUpdate: Cascade, onDelete: Cascade)
+  id_computer String
+  user_solution User @relation(fields: [id_user_solution], references: [iduser])
+  id_user_solution String
+  solution String
+  state String
+
+  @@map("event")
+}
+model Motherboard {
+  id_motherboard String @id @default(cuid())
+  computer Computer @relation(fields: [id_computer], references: [id_computer])
+  id_computer String @unique
+  manufacturer String
+  model String
+  serial_number String? @unique
+
+  @@map("motherboard")
+}
+
+model Monitor {
+  id_monitor String @id @default(cuid())
+  computer Computer @relation(fields: [id_computer], references: [id_computer])
+  id_computer String @unique
+  model String
+  serial_number String? @unique
+  no_inv Int @unique
+  state String
+
+  @@map("monitor")
+}
+
+model Keyboard {
+  id_keyboard String @id @default(cuid())
+  computer Computer @relation(fields: [id_computer], references: [id_computer])
+  id_computer String @unique
+  manufacturer String
+  model String
+  serial_number String? @unique
+
+  @@map("keyboard")
+}
+
+model CPU {
+  id_cpu String @id @default(cuid())
+  computer Computer @relation(fields: [id_computer], references: [id_computer])
+  id_computer String @unique
+  name String
+  manufacturer String
+  model String
+  capacity Float
+
+  @@map("cpu")
+}
+
+model RAM {
+id_ram String @id @default(cuid())
+id_computer String
+computer Computer @relation(fields: [id_computer], references: [id_computer], onDelete: Cascade, onUpdate: Cascade)
+manufacturer String
+model String
+capacity BigInt
+
+@@map("ram")
+}
+
+model Mouse {
+id_mouse String @id @default(cuid())
+computer Computer @relation(fields: [id_computer], references: [id_computer])
+id_computer String @unique
+manufacturer String
+model String
+serial_number String
+
+@@map("mouse")
+}
+
+model Diskett {
+  id_disket String @id @default(cuid())
+  computer Computer @relation(fields: [id_computer], references: [id_computer])
+  id_computer String @unique
+  manufacturer String
+  model String?
+  serial_number String @unique
+
+  @@map("disket")
+}
+
+model HDD {
+  id_hdd String @id @default(cuid())
+  id_computer String
+  computer Computer @relation(fields: [id_computer], references: [id_computer], onUpdate: Cascade)
+  manufacturer String
+  model String
+  capacity BigInt
+  type hddType
+  state String
+
+  @@map("storage")
+}
+
+enum hddType {
+  SSD
+  HDD
+  NVRAM
+}
+
+model Speaker {
+ id_speaker String @id @default(cuid())
+ id_computer String @unique
+ computer Computer @relation(fields: [id_computer], references: [id_computer])
+ manufacturer String
+ model String
+ serial_number String
+
+ @@map("speaker")
+}
+
+model Power_Supply {
+  id_power_supply String @id @default(cuid())
+  id_computer String @unique
+  computer Computer @relation(fields: [id_computer], references: [id_computer])
+  manufacturer String
+  model String
+  serial_number String?
+  @@map("power_supply")
+}
+
+model Peripheral {
+  id_peripheral String @id @default(cuid())
+  id_computer String @unique
+  computer Computer @relation(fields: [id_computer], references: [id_computer])
+  type String
+  manufacturer String
+  model String
+  serial_number String?
+
+  @@map("peripheral")
+}
+
+model UPS {
+  id_ups String @id @default(cuid())
+  id_computer String @unique
+  computer Computer @relation(fields: [id_computer], references: [id_computer])
+  manufacturer String
+  model String
+  serial_number String?
+  no_inv String? @unique
+
+  @@map("ups")
+}
+
+model Printer {
+  id_printer String @default(cuid())
+  id_computer String
+  computer Computer @relation(fields: [id_computer], references: [id_computer])
+  manufacturer String
+  model String
+  serial_number String?
+  no_inv BigInt @unique
+  state String
+  toner String?
+
+  @@map("printer")
+}
