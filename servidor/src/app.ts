@@ -1,6 +1,5 @@
-import { obtenerUsuario } from "./controllers/users";
+import userRouter from "./routes/users";
 import express from "express" //Importando el framework express
-import { Request, Response } from "express";
 
 require("dotenv").config(); //Cargar variables de entorno locales
 const cors = require("cors"); //Importando el middleware CORS
@@ -15,4 +14,5 @@ app.use(express.json()); // Parsea las peticiones restantes de tipo JSOn y permi
 app.listen(PORT, () => {
     console.log(`El servidor está escuchando en http://localhost:${PORT}`);
 }); //Levantando un mensaje si el servidor esta corriendo
-app.get("/usuarios", obtenerUsuario)
+
+app.use("/api/v1", userRouter)

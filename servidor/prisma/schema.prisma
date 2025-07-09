@@ -23,8 +23,9 @@ model User {
   avatar_url String?
   username String @unique
   password String
-  id_role String
-  role Role @relation(fields: [id_role], references: [id_role])
+  //id_role String
+  //role Role @relation(fields: [id_role], references: [id_role])
+  role Role
   tasks Task[]
   notifications Notification[]
   events Event[]
@@ -35,7 +36,12 @@ model User {
   @@map("user")
 }
 
-model Role {
+enum Role {
+  ADMINISTRADOR
+  SUPERVISOR
+}
+
+/*model Role {
   id_role String @id @default(cuid())
   users User[]
   name String
@@ -43,7 +49,7 @@ model Role {
 
   @@map("role")
 }
-
+*/
 model Computer {
   id_computer String @id @default(cuid())
   id_department String
