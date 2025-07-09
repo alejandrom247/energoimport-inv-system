@@ -25,7 +25,7 @@ model User {
   password String
   //id_role String
   //role Role @relation(fields: [id_role], references: [id_role])
-  role Role
+  role Role @default(SUPERVISOR)
   tasks Task[]
   notifications Notification[]
   events Event[]
