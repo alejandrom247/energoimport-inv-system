@@ -101,10 +101,18 @@ model Task {
   description String
   start_date DateTime @default(now())
   end_date DateTime
+  state StateT @default(ENEJECUCION)
   id_user String
   user User @relation(fields: [id_user], references: [iduser], onDelete: Cascade, onUpdate: Cascade)
 
+
   @@map("task")
+}
+
+enum StateT {
+  ENEJECUCION
+  CUMPLIDA
+  INCUMPLIDA
 }
 
 model Notification {
