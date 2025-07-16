@@ -1,3 +1,4 @@
+import tasksRouter from "./routes/tasks";
 import userRouter from "./routes/users";
 import express from "express" //Importando el framework express
 
@@ -16,3 +17,4 @@ app.listen(PORT, () => {
 }); //Levantando un mensaje si el servidor esta corriendo
 
 app.use("/api/v1", userRouter)
+app.use("/api/v1", tasksRouter)

@@ -19,11 +19,11 @@ export async function createUser(req:Request,res:Response) {
         }
     });
     if (existingUserByEmail) {
-        res.status(409).json({
+        res.status(403).json({
             error: `El email (${email}) ya ha sido usado`,
             data: null
         })
-
+        return;
     }
     const existingUserByUsername = await db.user.findUnique({
         where: {
@@ -31,10 +31,11 @@ export async function createUser(req:Request,res:Response) {
         }
     })
     if (existingUserByUsername) {
-        res.status(409).json({
+        res.status(403).json({
             error: `El nombre de usuario (${username}) ya ha sido usado`,
             data: null
         })
+        return;
     }
         const hashedPassword:string = await bcrypt.hash(password, 10);
         //Creando usuario
@@ -52,11 +53,11 @@ export async function createUser(req:Request,res:Response) {
         });
         const { password:savedPassword, ...others} = newUser
         
-    res.status(201).json({
+    res.status(200).json({
         error: null,
         data: others
     });
-   
+   return;
    
    } catch (error) {
     console.log(error);
@@ -64,6 +65,7 @@ export async function createUser(req:Request,res:Response) {
         error: "Algo salio mal",
         data: null
     })
+    return;
    }
 }
 
@@ -82,12 +84,14 @@ export async function getUsers(req:Request, res:Response){
             data:filteredUsers,
             error:null
         })
+        return;
     } catch (error) {
     console.log(error);
     res.status(500).json({
         error: "Algo salio mal",
         data: null
-    })
+    });
+    return;
     }
 }
 
@@ -100,10 +104,11 @@ export async function getUserById(req:Request, res:Response) {
             }
         });
         if(!user) {
-            return res.status(404).json({
+            res.status(404).json({
                 error:"No se encuentra al usuario",
                 data:null
             })
+            return;
         }
         const {password, ...others} = user
 
@@ -111,12 +116,14 @@ export async function getUserById(req:Request, res:Response) {
             error: null,
             data: others
         })
+        return;
     } catch (error) {
     console.log(error);
     res.status(500).json({
         error: "Algo salio mal",
         data: null
     })
+    return;
     }
 }
 
@@ -136,10 +143,11 @@ export async function updateUserById(req:Request, res:Response){
         }
     });
     if(!user){
-        return res.status(409).json({
-            error:"No se encuentra al usuario",
-            data: null
+        res.status(409).json({
+        error:"No se encuentra al usuario",
+        data: null
         })
+        return;
     }
     const updateUser = await db.user.update({
         data: {
@@ -155,16 +163,18 @@ export async function updateUserById(req:Request, res:Response){
         }
     });
     const { password, ...others} = updateUser;
-    return res.status(200).json({
+    res.status(200).json({
         error:null,
         data:others
-    })
+    });
+    return;
 } catch(error) {
     console.log(error);
     res.status(509).json({
         error: "Algo salio mal",
         data: null
-    })
+    });
+    return;
 }
 }
 
@@ -178,7 +188,7 @@ export async function updateUserPasswordById(req:Request, res:Response) {
             }
         });
         if(!user){
-            return res.status(404).json({
+            res.status(404).json({
                 error: "No se encuentra al usuario",
                 data: null
             })
@@ -193,7 +203,7 @@ export async function updateUserPasswordById(req:Request, res:Response) {
             }
         });
         const { password:savedPassword, ...others} = updatedUser
-        return res.status(200).json({
+        res.status(200).json({
             error: null,
             data: others
         })
@@ -215,10 +225,11 @@ export async function deleteUsersById(req:Request, res:Response) {
             }
         });
         if(!user) {
-            return res.status(404).json({
+            res.status(404).json({
                 error:"No se encuentra al usuario",
                 success: false
-            })
+            });
+            return;
         }
         await db.user.delete({
         where: {
@@ -229,12 +240,14 @@ export async function deleteUsersById(req:Request, res:Response) {
         res.status(200).json({
             success: true,
             error: null
-        })
+        });
+        return;
     } catch (error) {
     console.log(error);
     res.status(500).json({
         error: "Algo salio mal",
         success: false
-    })
+    });
+    return;
     }
 }
