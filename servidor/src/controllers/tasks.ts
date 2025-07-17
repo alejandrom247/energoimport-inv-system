@@ -58,21 +58,25 @@ export async function updateTaskById(req:Request,res:Response) {
         description,
         start_date,
         end_date,
+        state,
         id_user 
     } = req.body
     const { id } = req.params
+    const form_start_date = new Date(start_date).toISOString();
+    const form_end_date = new Date(end_date).toISOString()
     try {
-    if (start_date > end_date) {
+    if (form_start_date > form_end_date) {
         res.status(403).json({
-            error: "La fecha de inicio no puede ser mayo que la de fin"
+            error: "La fecha de inicio no puede ser mayor que la de fin"
         });
         return;
     }
     const updatedTask = await db.task.update({
         data: {
             description,
-            start_date,
-            end_date,
+            start_date: form_start_date,
+            end_date: form_end_date,
+            state,
             id_user
         },
         where: {
@@ -96,6 +100,19 @@ return;
 export async function getTasks(req:Request,res:Response) {
     try {
         const allTasks = await db.task.findMany({
+            select: {
+                id_task: true,
+                description: true,
+                start_date: true,
+                end_date: true,
+                state: true,
+                id_user: true,
+                user: {
+                    select: {
+                        username: true
+                    }
+                }
+            },
             orderBy: {
                 start_date: "desc"
             }
@@ -162,6 +179,17 @@ export async function getTasksByUser(req:Request,res:Response) {
             return;
         }
         const tasks = await db.task.findMany({
+            select: {
+                description: true,
+                start_date: true,
+                end_date: true,
+                state: true,
+                user: {
+                    select: {
+                        username: true
+                    }
+                }
+            },
             where: {
                 id_user: iduser
             },

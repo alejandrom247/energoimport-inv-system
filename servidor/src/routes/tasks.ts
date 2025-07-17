@@ -8,7 +8,7 @@ tasksRouter.put("/tarea/:id", updateTaskById);
 tasksRouter.get("/tarea/", getTasks);
 tasksRouter.get("/tarea/usuario/:iduser", getTasksByUser)
 tasksRouter.get("/tarea/:id", getTasksById)
-tasksRouter.delete("/tarea/:id", deleteTasksById)
+tasksRouter.delete("/tarea/:idtask", deleteTasksById)
 
 
 export default tasksRouter;
