@@ -89,9 +89,9 @@ enum Type {
 
 model Department {
   id_department String @id @default(cuid())
-  name String
+  name String @unique
   computers Computer[]
-  active Boolean
+  active Boolean @default(true)
 
   @@map("department")
 }
@@ -130,8 +130,8 @@ model Event {
   id_event String @id @default(cuid())
   computer Computer @relation(fields: [id_computer], references: [id_computer], onUpdate: Cascade, onDelete: Cascade)
   id_computer String
-  user_solution User @relation(fields: [id_user_solution], references: [iduser])
   id_user_solution String
+  user_solution User @relation(fields: [id_user_solution], references: [iduser])
   solution String
   state String
 
