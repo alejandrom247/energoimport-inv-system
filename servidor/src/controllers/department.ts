@@ -33,6 +33,7 @@ try {
         error: "Algo salió mal",
         data:null
     });
+    return;
 }
 }
 
@@ -90,7 +91,8 @@ export async function getDepartmentById(req:Request,res:Response){
 
 export async function updateDepartment(req:Request, res:Response) {
     const { id } = req.params;
-
+    const { name, active } = req.body
+    try {
     const department = await db.department.findUnique({
         where: {
             id_department: id
@@ -98,7 +100,63 @@ export async function updateDepartment(req:Request, res:Response) {
     });
     if(!department) {
         res.status(404).json({
-            
+            error: "No se encuentra el departamento",
+            data:null
+        });
+        return;
+    }
+    const updatedDepartment = await db.department.update({
+        data: {
+            name,
+            active
+        },
+        where: {
+            id_department: id
+        }
+    });
+    res.status(200).json({
+        error: null,
+        data: updatedDepartment
+    });
+    return;
+} catch (error){
+console.log(error),
+res.status(500).json({
+    error: "Algo salió mal",
+    data:null
+});
+return;
+}
+}
+
+export async function deleteDepartment(req:Request, res:Response){
+    const { id } = req.params
+    try {
+        const department = await db.department.findUnique({
+            where: {
+                id_department: id
+            }
+        });
+        if(!department){
+            res.status(404).json({
+                error: "No se encuentra el departamento",
+                success: false
+            });
+        }
+        await db.department.delete({
+            where: {
+                id_department:id
+            }
+        });
+        res.status(200).json({
+            error: null,
+            success: true
+        })
+    } catch (error) {
+        console.log(error),
+        res.status(500).json({
+            error: "Algo salió mal",
+            success: false
         })
     }
 }
