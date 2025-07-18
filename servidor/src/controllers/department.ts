@@ -142,6 +142,7 @@ export async function deleteDepartment(req:Request, res:Response){
                 error: "No se encuentra el departamento",
                 success: false
             });
+            return;
         }
         await db.department.delete({
             where: {
@@ -152,11 +153,13 @@ export async function deleteDepartment(req:Request, res:Response){
             error: null,
             success: true
         })
+        return;
     } catch (error) {
         console.log(error),
         res.status(500).json({
             error: "Algo salió mal",
             success: false
         })
+        return;
     }
 }
