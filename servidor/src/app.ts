@@ -1,3 +1,5 @@
+import computerRouter from "./routes/computers";
+import departmentRouter from "./routes/department";
 import tasksRouter from "./routes/tasks";
 import userRouter from "./routes/users";
 import express from "express" //Importando el framework express
@@ -16,5 +18,7 @@ app.listen(PORT, () => {
     console.log(`El servidor está escuchando en http://localhost:${PORT}`);
 }); //Levantando un mensaje si el servidor esta corriendo
 
-app.use("/api/v1", userRouter)
-app.use("/api/v1", tasksRouter)
+app.use("/api/v1", userRouter);
+app.use("/api/v1", tasksRouter);
+app.use("/api/v1", departmentRouter);
+app.use("/api/v1", computerRouter)
