@@ -152,6 +152,7 @@ model Monitor {
   id_monitor String @id @default(cuid())
   computer Computer @relation(fields: [id_computer], references: [id_computer])
   id_computer String @unique
+  manufacturer String
   model String
   serial_number String? @unique
   no_inv Int @unique
