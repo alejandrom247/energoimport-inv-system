@@ -1,8 +1,8 @@
 import {db} from "../db/db"
 import { Request, Response } from "express"
 
-export async function createMonitor(req:Request, res:Response) {
-    const { id_computer, manufacturer, model, serial_number, no_inv, state } = req.body
+export async function createKeyboard(req:Request, res:Response) {
+    const { id_computer, manufacturer, model, serial_number } = req.body
 try {
     const computer = await db.computer.findUnique({
         where: {
@@ -24,31 +24,29 @@ try {
     });
     if(!motherboard)
 }*/
-    const monitor = await db.monitor.findUnique({
+    const keyboard = await db.keyboard.findUnique({
         where: {
-            no_inv: no_inv
+            serial_number: serial_number
         }
     });
-    if(monitor){
+    if(keyboard){
         res.status(403).json({
-            error: `Ya existe un monitor con número de inventario ${no_inv}`,
+            error: `Ya existe un teclado con número de serie ${serial_number}`,
             data: null
         });
         return;
     }
-    const newMonitor = await db.monitor.create({
+    const newKeyboard = await db.keyboard.create({
         data: {
             id_computer,
             manufacturer,
             model,
             serial_number,
-            no_inv,
-            state
         }
     });
     res.status(200).json({
         error: null,
-        data: newMonitor
+        data: newKeyboard
     });
     return;
 } catch(error){
@@ -61,9 +59,9 @@ try {
 }
 }
 
-export async function getMonitor(req:Request, res:Response){
+export async function getKeyboard(req:Request, res:Response){
     try {
-        const allMonitor = await db.monitor.findMany({
+        const allKeyboard = await db.keyboard.findMany({
             orderBy: {
                 manufacturer: "desc"
             },
@@ -77,7 +75,7 @@ export async function getMonitor(req:Request, res:Response){
         });
         res.status(200).json({
             error: null,
-            data: allMonitor
+            data: allKeyboard
         });
         return;
     } 
@@ -91,12 +89,12 @@ export async function getMonitor(req:Request, res:Response){
     }
 }
 
-export async function getMonitorById(req:Request,res:Response) {
+export async function getKeyboardById(req:Request,res:Response) {
      const { id } = req.params;
      try {
-        const monitor = await db.monitor.findUnique({
+        const keyboard = await db.keyboard.findUnique({
             where: {
-                id_monitor: id
+                id_keyboard: id
             },
             include: {
                 computer: {
@@ -106,16 +104,16 @@ export async function getMonitorById(req:Request,res:Response) {
                 }
             }
         });
-        if(!monitor){
+        if(!keyboard){
             res.status(404).json({
-                error: "No se encuentra el monitor",
+                error: "No se encuentra el teclado",
                 data:null
             });
             return;
         }
         res.status(200).json({
             error: null,
-            data: monitor
+            data: keyboard
         });
         return;
      } catch (error) {
@@ -127,18 +125,18 @@ export async function getMonitorById(req:Request,res:Response) {
      }   
 }
 
-export async function updateMonitor(req:Request, res:Response){
+export async function updateKeyboard(req:Request, res:Response){
     const {id} = req.params
-    const { id_computer, manufacturer, model, serial_number, no_inv, state } = req.body
+    const { id_computer, manufacturer, model, serial_number } = req.body
     try {
-        const monitor = await db.monitor.findUnique({
+        const keyboard = await db.keyboard.findUnique({
             where: {
-                id_monitor: id
+                id_keyboard: id
             }
         });
-        if(!monitor){
+        if(!keyboard){
             res.status(404).json({
-                error: "La motherboard no existe",
+                error: "El teclado no existe",
                 data: null
             });
             return;}
@@ -154,50 +152,35 @@ export async function updateMonitor(req:Request, res:Response){
             });
             return;
         }
-        if(monitor.no_inv != no_inv){
-            const monitorByNoInv = await db.monitor.findUnique({
-                where: {
-                    no_inv: no_inv
-                }
-            });
-            if(monitorByNoInv){
-                res.status(403).json({
-                    error: `Ya existe un monitor con el número de inventario: ${no_inv}`,
-                    data: null
-                });
-            }
-            return;
-        }
-        if(monitor.serial_number != serial_number){
-            const monitorBySerialNumber = await db.monitor.findUnique({
+
+        if(keyboard.serial_number != serial_number){
+            const keyboardBySerialNumber = await db.keyboard.findUnique({
                 where: {
                     serial_number: serial_number
                 }
             });
-            if(monitorBySerialNumber){
+            if(keyboardBySerialNumber){
                 res.status(403).json({
-                    error: `Ya existe un monitor con el número de serie: ${serial_number}`,
+                    error: `Ya existe un teclado con el número de serie: ${serial_number}`,
                     data: null
-                })
+                });
             }
             return;      
         }
-        const updatedMotherboard = await db.monitor.update({
+        const updatedKeyboard = await db.keyboard.update({
             where: {
-                id_monitor: monitor.id_monitor
+                id_keyboard: keyboard.id_keyboard
             },
             data: {
                 id_computer,
                 manufacturer,
                 model,
                 serial_number,
-                no_inv,
-                state
             }
         });
         res.status(200).json({
             error: null,
-            data: updatedMotherboard
+            data: updatedKeyboard
         });
         return;
     } catch (error) {
@@ -213,21 +196,21 @@ export async function deleteMonitor(req:Request,res:Response) {
     const {id} = req.params
 
     try {
-        const monitor = await db.monitor.findUnique({
+        const keyBoard = await db.keyboard.findUnique({
             where: {
-                id_monitor: id
+                id_keyboard: id
             }
         });
-        if (!monitor) {
+        if (!keyBoard) {
             res.status(404).json({
-                error: "No existe el monitor",
+                error: "No existe el teclado",
                 data: null
             });
             return;
         }
-        db.monitor.delete({
+        db.keyboard.delete({
             where: {
-                id_monitor: id
+                id_keyboard: id
             }
         });
         res.status(200).json({
