@@ -1,3 +1,4 @@
+import loginRouter from "./routes/login";
 import computerRouter from "./routes/computers";
 import departmentRouter from "./routes/department";
 import tasksRouter from "./routes/tasks";
@@ -22,3 +23,4 @@ app.use("/api/v1", userRouter);
 app.use("/api/v1", tasksRouter);
 app.use("/api/v1", departmentRouter);
 app.use("/api/v1", computerRouter)
+app.use("/api/v1", loginRouter)
