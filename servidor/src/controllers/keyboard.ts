@@ -59,7 +59,7 @@ try {
 }
 }
 
-export async function getKeyboard(req:Request, res:Response){
+export async function getKeyboards(req:Request, res:Response){
     try {
         const allKeyboard = await db.keyboard.findMany({
             orderBy: {
@@ -192,7 +192,7 @@ export async function updateKeyboard(req:Request, res:Response){
     }
 }
 
-export async function deleteMonitor(req:Request,res:Response) {
+export async function deleteKeyboard(req:Request,res:Response) {
     const {id} = req.params
 
     try {
@@ -204,7 +204,7 @@ export async function deleteMonitor(req:Request,res:Response) {
         if (!keyBoard) {
             res.status(404).json({
                 error: "No existe el teclado",
-                data: null
+                success: false
             });
             return;
         }
@@ -221,7 +221,7 @@ export async function deleteMonitor(req:Request,res:Response) {
     } catch (error) {
         res.status(500).json({
             error: "Algo salió mal",
-            data: null
+            success: false
         });
         return;
     }

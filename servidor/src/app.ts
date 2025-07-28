@@ -2,7 +2,12 @@ import computerRouter from "./routes/computers";
 import departmentRouter from "./routes/department";
 import tasksRouter from "./routes/tasks";
 import userRouter from "./routes/users";
+import motherboardRouter from "./routes/motherboard"
+import keyboardRouter from "./routes/keyboards";
+import cpuRouter from "./routes/cpu";
+import monitorRouter from "./routes/monitor";
 import express from "express" //Importando el framework express
+
 
 require("dotenv").config(); //Cargar variables de entorno locales
 const cors = require("cors"); //Importando el middleware CORS
@@ -21,4 +26,8 @@ app.listen(PORT, () => {
 app.use("/api/v1", userRouter);
 app.use("/api/v1", tasksRouter);
 app.use("/api/v1", departmentRouter);
-app.use("/api/v1", computerRouter)
+app.use("/api/v1", computerRouter);
+app.use("/api/v1", motherboardRouter);
+app.use("/api/v1", keyboardRouter);
+app.use("/api/v1", cpuRouter);
+app.use("/api/v1", monitorRouter)
