@@ -164,7 +164,7 @@ export async function verifyToken(req:Request, res:Response){
 }
 
 export async function changePassword(req:Request, res:Response){
-    const { token } = req.params;
+    const { token } = req.params; 
     const { newPassword } = req.body;
 
     try {
