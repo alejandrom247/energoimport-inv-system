@@ -134,3 +134,71 @@ export async function forgotPassword(req:Request, res:Response) {
         return;
     }
 }
+
+export async function verifyToken(req:Request, res:Response){
+    const {token} = req.params;
+    try {
+        const user = await db.user.findFirst({
+            where: {
+                resetToken: token,
+                resetTokenExpiry: { gte: new Date()}
+            }
+        });
+        if (!user){
+            res.status(403).json({
+                message: "Token inválido o expirado"
+            });
+            return;
+        }
+
+        res.status(200).json({
+            message: "El token es válido"
+        });
+        return;
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            message:"Algo salió mal"
+        })
+    }
+}
+
+export async function changePassword(req:Request, res:Response){
+    const { token } = req.params;
+    const { newPassword } = req.body;
+
+    try {
+        const user = await db.user.findFirst({
+            where: {
+                resetToken: token,
+                resetTokenExpiry: {
+                    gte: new Date()
+                }
+            }
+        });
+        if(!user){
+            res.status(400).json({ message: "Token inválido o expirado"});
+            return;
+        }
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+        await db.user.update({
+            where: {iduser: user?.iduser},
+            data:{
+                password: hashedPassword,
+                resetToken: null,
+                resetTokenExpiry: null
+            }
+        });
+        res.status(200).json({
+            message: "Contraseña restablecida exitosamente"
+        });
+        return;
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            message: "Algo salió mal"
+        });
+        return;
+    }
+}
