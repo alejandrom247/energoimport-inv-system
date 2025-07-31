@@ -30,6 +30,8 @@ model User {
   notifications Notification[]
   events Event[]
   createdComputers Computer[]
+  //refreshToken para autenticación
+  refreshToken String?
   //Campos para reinicio del Password
   resetToken String? //token usado para reiniciar
   resetTokenExpiry DateTime? //fecha de expiración del token

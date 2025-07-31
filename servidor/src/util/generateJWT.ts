@@ -5,7 +5,7 @@ interface SignOptions {
     expiresIn?: ms.StringValue | number | undefined;
 }
 const DEFAULT_SIGN_OPTION: SignOptions = {
-    expiresIn: '1h',
+    expiresIn: '15m',
 };
 export function generateAccessToken(
     payload: JwtPayload,

@@ -5,6 +5,7 @@ import { generateAccessToken } from "../util/generateJWT";
 import { addMinutes } from "date-fns";
 import { transporter } from "../util/nodemailer";
 import generateResetPasswordEmail from "../util/generateEmailTemplate"
+import { strict } from "assert";
 //import hbs from "nodemailer-express-handlebars"
 
 
@@ -37,15 +38,33 @@ export async function authenticateUser(req:Request, res:Response) {
             }
             // Destructurar el password para que no sea transmitido al cliente
             const { password:noPassword, ...others} = existingUser
-            const accessToken = generateAccessToken(others)
-            const result = {
-                ...others,
-                accessToken
-            }
+            const accessToken = generateAccessToken({iduser: others.iduser})
+            const refreshToken = generateAccessToken({iduser: others.iduser}, { expiresIn: '24h'})
+            await db.user.update({
+                where: {
+                 email,
+                 username
+                },
+                data: {
+                    refreshToken
+                }
+            })
+            res.cookie("access-token", accessToken, {
+                httpOnly: true,//Asegura que al cookie no se pueda acceder vía JavaScript (seguridad contra ataques tipo XSS)
+                secure: process.env.NODE_ENV === "production", //Se coloca verdadero en producción para Cookies HTTPS-only
+                maxAge: 15 * 60 * 1000, //15 minutos en milisegundos
+                sameSite: "strict" //Se asegura que el cookie solo es enviado con peticiones del mismo dominio
+            }).status(200);
+            res.cookie("refresh-token", refreshToken, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production",
+                maxAge: 24 * 60 * 60 * 1000, // 24 horas en milisegundos
+                sameSite: "strict"
+            })
             res.status(200).json({
-                error:null,
-                data:result
-            });
+                message: "Autenticación exitosa",
+                data:others
+            })
             return;
         } catch (error) {
             console.log(error);
@@ -202,3 +221,4 @@ export async function changePassword(req:Request, res:Response){
         return;
     }
 }
+
