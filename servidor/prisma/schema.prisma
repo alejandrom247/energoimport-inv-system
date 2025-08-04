@@ -26,7 +26,8 @@ model User {
   //id_role String
   //role Role @relation(fields: [id_role], references: [id_role])
   role Role @default(SUPERVISOR)
-  tasks Task[]
+  tasks Task[] @relation("TaskAssigned")
+  taskAssignated Task[] @relation("TaskAsignatedBy")
   notifications Notification[]
   events Event[]
   createdComputers Computer[]
@@ -109,7 +110,9 @@ model Task {
   end_date DateTime
   state StateT @default(ENEJECUCION)
   id_user String
-  user User @relation(fields: [id_user], references: [iduser], onDelete: Cascade, onUpdate: Cascade)
+  user User @relation(name: "TaskAssigned", fields: [id_user], references: [iduser], onDelete: Cascade, onUpdate: Cascade)
+  assignatedById String
+  assignatedBy User @relation(name: "TaskAsignatedBy", fields: [assignatedById], references: [iduser])
 
 
   @@map("task")

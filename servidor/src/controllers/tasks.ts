@@ -59,7 +59,6 @@ export async function updateTaskById(req:Request,res:Response) {
         start_date,
         end_date,
         state,
-        id_user 
     } = req.body
     const { id } = req.params
     const form_start_date = new Date(start_date).toISOString();
@@ -77,7 +76,6 @@ export async function updateTaskById(req:Request,res:Response) {
             start_date: form_start_date,
             end_date: form_end_date,
             state,
-            id_user
         },
         where: {
             id_task: id

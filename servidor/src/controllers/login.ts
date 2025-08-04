@@ -5,7 +5,6 @@ import { generateAccessToken } from "../util/generateJWT";
 import { addMinutes } from "date-fns";
 import { transporter } from "../util/nodemailer";
 import generateResetPasswordEmail from "../util/generateEmailTemplate"
-import jwt from "jsonwebtoken"
 //import hbs from "nodemailer-express-handlebars"
 
 
