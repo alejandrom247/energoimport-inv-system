@@ -8,7 +8,7 @@ import jwt, { JwtPayload, TokenExpiredError } from "jsonwebtoken"
     */
 interface DecodedToken {
     iduser: string
-}
+}/*
 export const verifyToken = async (req:Request, res:Response, next:NextFunction) => {
     const token = req.header("access-token")?.replace('Bearer ', '');
     try {
@@ -46,4 +46,54 @@ export const verifyToken = async (req:Request, res:Response, next:NextFunction) 
         });
         return;
     }
+}*/
+class AuthMiddleware {
+    static authenticateUser = (req:Request, res:Response, next:NextFunction) => {
+        const token = req.cookies.accessToken;
+
+        if(!token){
+            res.status(401).json({
+                error: "No autorizado",
+            });
+            return;
+        }
+        try {
+            // Verificar el token usando clave secreta del entorno
+            const decodedToken = jwt.verify(token, process.env.SECRET_KEY ? process.env.SECRET_KEY : '') as DecodedToken
+            (req as any).iduser = decodedToken.iduser;
+            next();
+        } catch (error) {
+            console.error("La autenticación falló", error);
+            res.status(401).json({
+                message:"No autorizado"
+            });
+            return;
+        }
+    }
+    static refreshTokenValidation = (req:Request, res: Response, next:NextFunction) => {
+        // Extraer el refresh token del cookie HttpOnly
+        const refreshToken = req.cookies.refreshToken;
+
+        if(!refreshToken){
+            res.status(401).json({
+                message: "No se suministro un token de actualización"
+            });
+            return;
+        }
+        try {
+            const decodedToken = jwt.verify(refreshToken, process.env.SECRET_KEY ? process.env.SECRET_KEY : '') as DecodedToken
+            (req as any).iduser = decodedToken.iduser
+
+            next();
+
+        } catch (error) {
+            console.error("La autenticación con token de acutualizado falló", error);
+            res.status(401).json({
+            message:"No autorizado"
+            });
+            return;
+        }
+    };
 }
+
+export default AuthMiddleware

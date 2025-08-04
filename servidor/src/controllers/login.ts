@@ -5,7 +5,7 @@ import { generateAccessToken } from "../util/generateJWT";
 import { addMinutes } from "date-fns";
 import { transporter } from "../util/nodemailer";
 import generateResetPasswordEmail from "../util/generateEmailTemplate"
-import { strict } from "assert";
+import jwt from "jsonwebtoken"
 //import hbs from "nodemailer-express-handlebars"
 
 
@@ -53,7 +53,7 @@ export async function authenticateUser(req:Request, res:Response) {
                 httpOnly: true,//Asegura que al cookie no se pueda acceder vía JavaScript (seguridad contra ataques tipo XSS)
                 secure: process.env.NODE_ENV === "production", //Se coloca verdadero en producción para Cookies HTTPS-only
                 maxAge: 15 * 60 * 1000, //15 minutos en milisegundos
-                sameSite: "strict" //Se asegura que el cookie solo es enviado con peticiones del mismo dominio
+                sameSite: "strict" //Se asegura que el cookie solo es enviado para peticiones del mismo dominio
             }).status(200);
             res.cookie("refresh-token", refreshToken, {
                 httpOnly: true,
@@ -183,7 +183,7 @@ export async function verifyToken(req:Request, res:Response){
 }
 
 export async function changePassword(req:Request, res:Response){
-    const { token } = req.params; 
+    const token = req.cookies.accessToken; 
     const { newPassword } = req.body;
 
     try {
@@ -217,6 +217,80 @@ export async function changePassword(req:Request, res:Response){
         console.log(error);
         res.status(500).json({
             message: "Algo salió mal"
+        });
+        return;
+    }
+}
+
+export async function refreshToken(req:Request, res:Response) {
+    try {
+        const userId = (req as any).user?.iduser
+        const refreshToken = req.cookies.refreshToken;
+
+        const user = await db.user.findUnique({
+            where: {
+                iduser: userId
+            }
+        });
+        if(!user || !user.refreshToken){
+            res.status(403).json({
+                error: "Token inválido",
+                message: null
+            });
+            return; 
+        }
+        const newAccessToken = generateAccessToken({iduser: userId})
+        res.cookie("access-token", newAccessToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            maxAge: 15 * 60 * 1000, //15 minutos
+            sameSite: "strict"
+        })
+        res.status(200).json({
+            error: null,
+            message: "Actualizado el token con éxito"
+        });
+        return;
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            message: null,
+            error: "Algo salió mal"
+        });
+    }
+}
+
+export async function logoutUser(req:Request, res:Response) {
+    try {
+        //Asegurarse que el usuario este autenticado antes de ejecutar el metodo
+        //la autenticacion se hace en el middleware que chequeara la presencia de un accestoken valido
+        //Quitar el refreshToken del Usuario de la bd
+
+        const userId = (req as any).user?.iduser
+
+        if(userId){
+            await db.user.update({
+                where: {
+                    iduser: userId
+                },
+                data: {
+                    refreshToken: null
+                }
+            });
+        }
+
+        res.clearCookie("access-token");
+        res.clearCookie("refresh-token");
+        res.status(200).json({
+            error: null,
+            message: "El usuario ha cerrado sesión"
+        });
+        return;
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            error: "Algo salió mal",
+            message: null
         });
         return;
     }

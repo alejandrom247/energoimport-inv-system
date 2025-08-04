@@ -8,6 +8,7 @@ import keyboardRouter from "./routes/keyboards";
 import cpuRouter from "./routes/cpu";
 import monitorRouter from "./routes/monitor";
 import express from "express" //Importando el framework express
+import cookieParser from "cookie-parser";
 
 
 require("dotenv").config(); //Cargar variables de entorno locales
@@ -15,6 +16,7 @@ const cors = require("cors"); //Importando el middleware CORS
 const app = express(); // Creando una instancia de Express
 
 app.use(cors()); // Habilitando el uso de CORS para todas las rutas API
+app.use(cookieParser()); //Permite el uso de cookies
 
 const PORT = process.env.PORT || 8000; // Configurando el puerto desde las variables de entorno
 
