@@ -49,7 +49,7 @@ export const verifyToken = async (req:Request, res:Response, next:NextFunction) 
 }*/
 class AuthMiddleware {
     static authenticateUser = (req:Request, res:Response, next:NextFunction) => {
-        const token = req.cookies.accessToken;
+        const token = req.cookies.access_token
 
         if(!token){
             res.status(401).json({
@@ -72,7 +72,7 @@ class AuthMiddleware {
     }
     static refreshTokenValidation = (req:Request, res: Response, next:NextFunction) => {
         // Extraer el refresh token del cookie HttpOnly
-        const refreshToken = req.cookies.refreshToken;
+        const refreshToken = req.cookies.refresh_token;
 
         if(!refreshToken){
             res.status(401).json({
@@ -85,15 +85,40 @@ class AuthMiddleware {
             (req as any).iduser = decodedToken.iduser
 
             next();
-
         } catch (error) {
-            console.error("La autenticación con token de acutualizado falló", error);
+            console.error("La autenticación con token de actualizado falló", error);
             res.status(401).json({
             message:"No autorizado"
             });
             return;
         }
     };
+    static resetTokenValidation = async (req:Request, res: Response, next:NextFunction) => {
+            const {token} = req.body;
+    try {
+        const user = await db.user.findFirst({
+            where: {
+                resetToken: token,
+                resetTokenExpiry: { gte: new Date()}
+            }
+        });
+        if (!user){
+            res.status(403).json({
+                message: "Token inválido o expirado"
+            });
+            return;
+        }
+
+        (req as any).user = user;
+
+        next()
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            message:"Algo salió mal"
+        })
+    }
+    }
 }
 
 export default AuthMiddleware

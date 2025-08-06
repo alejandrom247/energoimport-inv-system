@@ -36,7 +36,7 @@ export async function authenticateUser(req:Request, res:Response) {
                 return;
             }
             // Destructurar el password para que no sea transmitido al cliente
-            const { password:noPassword, ...others} = existingUser
+            const { password:noPassword, refreshToken:noRefreshToken, ...others} = existingUser
             const accessToken = generateAccessToken({iduser: others.iduser})
             const refreshToken = generateAccessToken({iduser: others.iduser}, { expiresIn: '24h'})
             await db.user.update({
@@ -48,13 +48,13 @@ export async function authenticateUser(req:Request, res:Response) {
                     refreshToken
                 }
             })
-            res.cookie("access-token", accessToken, {
+            res.cookie("access_token", accessToken, {
                 httpOnly: true,//Asegura que al cookie no se pueda acceder vía JavaScript (seguridad contra ataques tipo XSS)
                 secure: process.env.NODE_ENV === "production", //Se coloca verdadero en producción para Cookies HTTPS-only
                 maxAge: 15 * 60 * 1000, //15 minutos en milisegundos
                 sameSite: "strict" //Se asegura que el cookie solo es enviado para peticiones del mismo dominio
             }).status(200);
-            res.cookie("refresh-token", refreshToken, {
+            res.cookie("refresh_token", refreshToken, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === "production",
                 maxAge: 24 * 60 * 60 * 1000, // 24 horas en milisegundos
@@ -153,8 +153,8 @@ export async function forgotPassword(req:Request, res:Response) {
     }
 }
 
-export async function verifyToken(req:Request, res:Response){
-    const {token} = req.params;
+/*export async function verifyToken(req:Request, res:Response){
+    const token = req.cookies.resetToken;
     try {
         const user = await db.user.findFirst({
             where: {
@@ -179,14 +179,14 @@ export async function verifyToken(req:Request, res:Response){
             message:"Algo salió mal"
         })
     }
-}
+}*/
 
 export async function changePassword(req:Request, res:Response){
-    const token = req.cookies.accessToken; 
+    const user = (req as any).user
     const { newPassword } = req.body;
 
     try {
-        const user = await db.user.findFirst({
+        /*const user = await db.user.findFirst({
             where: {
                 resetToken: token,
                 resetTokenExpiry: {
@@ -198,6 +198,8 @@ export async function changePassword(req:Request, res:Response){
             res.status(400).json({ message: "Token inválido o expirado"});
             return;
         }
+            
+        */
         const hashedPassword = await bcrypt.hash(newPassword, 10);
 
         await db.user.update({
@@ -224,7 +226,6 @@ export async function changePassword(req:Request, res:Response){
 export async function refreshToken(req:Request, res:Response) {
     try {
         const userId = (req as any).user?.iduser
-        const refreshToken = req.cookies.refreshToken;
 
         const user = await db.user.findUnique({
             where: {
@@ -239,7 +240,7 @@ export async function refreshToken(req:Request, res:Response) {
             return; 
         }
         const newAccessToken = generateAccessToken({iduser: userId})
-        res.cookie("access-token", newAccessToken, {
+        res.cookie("access_token", newAccessToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
             maxAge: 15 * 60 * 1000, //15 minutos
