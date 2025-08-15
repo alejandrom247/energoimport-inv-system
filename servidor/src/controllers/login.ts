@@ -153,8 +153,8 @@ export async function forgotPassword(req:Request, res:Response) {
     }
 }
 
-/*export async function verifyToken(req:Request, res:Response){
-    const token = req.cookies.resetToken;
+export async function verifyToken(req:Request, res:Response){
+    const token = req.body;
     try {
         const user = await db.user.findFirst({
             where: {
@@ -179,7 +179,7 @@ export async function forgotPassword(req:Request, res:Response) {
             message:"Algo salió mal"
         })
     }
-}*/
+}
 
 export async function changePassword(req:Request, res:Response){
     const user = (req as any).user

@@ -1,2 +1,5 @@
 servidor/node_modules*
 servidor/package-lock.json
+cliente/energoimport-inv-system-cliente/node_modules*
+cliente/energoimport-inv-system-cliente/out*
+cliente/energoimport-inv-system-cliente/package-lock.json
