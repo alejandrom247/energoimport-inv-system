@@ -59,7 +59,7 @@ export async function authenticateUser(req:Request, res:Response) {
                 secure: process.env.NODE_ENV === "production",
                 maxAge: 24 * 60 * 60 * 1000, // 24 horas en milisegundos
                 sameSite: "strict"
-            })
+            }).status(200)
             res.status(200).json({
                 message: "Autenticación exitosa",
                 data:others
@@ -240,6 +240,7 @@ export async function refreshToken(req:Request, res:Response) {
             return; 
         }
         const newAccessToken = generateAccessToken({iduser: userId})
+        //res.clearCookie("access_token")
         res.cookie("access_token", newAccessToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
