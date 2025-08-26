@@ -261,6 +261,46 @@ export async function refreshToken(req:Request, res:Response) {
     }
 }
 
+export async function getMe(req:Request, res:Response) {
+    const userId = (req as any).user?.iduser
+    try {
+    if(userId){
+        const me = await db.user.findUnique({
+            where: {
+                iduser: userId
+            }
+        });
+        if(!me){
+            res.status(404).json({
+                error: 'No se ha encontrado al usuario',
+                data: null
+            })
+            return;
+        }
+        const {password, refreshToken, ...others } = me
+        res.status(200).json({
+            error: null,
+            data: others
+        })
+        return;
+    }
+    else {
+        res.status(403).json({
+            error: 'No se ha proporcionado un identificador valido',
+            data: null
+        });
+        return;
+    }
+    } catch(error){
+        console.error(error);
+        res.status(500).json({
+            error: "Algo salio mal",
+            data: null
+        });
+        return;
+    }
+} 
+
 export async function logoutUser(req:Request, res:Response) {
     try {
         //Asegurarse que el usuario este autenticado antes de ejecutar el metodo
