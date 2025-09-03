@@ -49,7 +49,8 @@ export const verifyToken = async (req:Request, res:Response, next:NextFunction) 
 }*/
 class AuthMiddleware {
     static authenticateUser = (req:Request, res:Response, next:NextFunction) => {
-        const token = req.cookies.access_token
+        const authHeader = req.headers.authorization;
+        const token = authHeader && authHeader.split(" ")[1]
 
         if(!token){
             res.status(401).json({
@@ -72,7 +73,7 @@ class AuthMiddleware {
     }
     static refreshTokenValidation = (req:Request, res: Response, next:NextFunction) => {
         // Extraer el refresh token del cookie HttpOnly
-        const refreshToken = req.cookies.refresh_token;
+        const refreshToken = req.cookies.refreshToken;
 
         if(!refreshToken){
             res.status(401).json({
@@ -116,7 +117,8 @@ class AuthMiddleware {
         console.log(error);
         res.status(500).json({
             message:"Algo salió mal"
-        })
+        });
+        return;
     }
     }
 }

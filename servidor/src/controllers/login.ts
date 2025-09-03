@@ -35,7 +35,7 @@ export async function authenticateUser(req:Request, res:Response) {
                 });
                 return;
             }
-            // Destructurar el password para que no sea transmitido al cliente
+            // Destructurar el password y el RefreshToken para que no sea transmitido al cliente
             const { password:noPassword, refreshToken:noRefreshToken, ...others} = existingUser
             const accessToken = generateAccessToken({iduser: others.iduser})
             const refreshToken = generateAccessToken({iduser: others.iduser}, { expiresIn: '24h'})
@@ -48,20 +48,15 @@ export async function authenticateUser(req:Request, res:Response) {
                     refreshToken
                 }
             })
-            res.cookie("access_token", accessToken, {
-                httpOnly: true,//Asegura que al cookie no se pueda acceder vía JavaScript (seguridad contra ataques tipo XSS)
-                secure: process.env.NODE_ENV === "production", //Se coloca verdadero en producción para Cookies HTTPS-only
-                maxAge: 15 * 60 * 1000, //15 minutos en milisegundos
-                sameSite: "strict" //Se asegura que el cookie solo es enviado para peticiones del mismo dominio
-            }).status(200);
             res.cookie("refresh_token", refreshToken, {
-                httpOnly: true,
+                httpOnly: true,//Asegura que al cookie no se pueda acceder vía JavaScript (seguridad contra ataques tipo XSS)
                 secure: process.env.NODE_ENV === "production",
                 maxAge: 24 * 60 * 60 * 1000, // 24 horas en milisegundos
-                sameSite: "strict"
+                sameSite: "lax"
             }).status(200)
             res.status(200).json({
                 message: "Autenticación exitosa",
+                accessToken,
                 data:others
             })
             return;
@@ -320,8 +315,8 @@ export async function logoutUser(req:Request, res:Response) {
             });
         }
 
-        res.clearCookie("access-token");
-        res.clearCookie("refresh-token");
+        //res.clearCookie("access_token");
+        res.clearCookie("refresh_token");
         res.status(200).json({
             error: null,
             message: "El usuario ha cerrado sesión"

@@ -7,7 +7,7 @@ import motherboardRouter from "./routes/motherboard"
 import keyboardRouter from "./routes/keyboards";
 import cpuRouter from "./routes/cpu";
 import monitorRouter from "./routes/monitor";
-import express from "express" //Importando el framework express
+import express, { NextFunction, Request, Response } from "express" //Importando el framework express
 import cookieParser from "cookie-parser";
 
 
@@ -15,7 +15,10 @@ require("dotenv").config(); //Cargar variables de entorno locales
 const cors = require("cors"); //Importando el middleware CORS
 const app = express(); // Creando una instancia de Express
 
-app.use(cors()); // Habilitando el uso de CORS para todas las rutas API
+app.use(cors({
+    origin: '*',
+    credentials:true,
+})); // Habilitando el uso de CORS para todas las rutas API
 app.use(cookieParser()); //Permite el uso de cookies
 
 const PORT = process.env.PORT || 8000; // Configurando el puerto desde las variables de entorno
@@ -26,6 +29,10 @@ app.listen(PORT, () => {
     console.log(`El servidor está escuchando en http://localhost:${PORT}`);
 }); //Levantando un mensaje si el servidor esta corriendo
 
+/*app.use((req:Request, res: Response, next:NextFunction)=> {
+    res.header('Access-Control-Allow-Credentials');
+    next();
+})*/
 app.use("/api/v1", userRouter);
 app.use("/api/v1", tasksRouter);
 app.use("/api/v1", departmentRouter);
@@ -35,3 +42,8 @@ app.use("/api/v1", motherboardRouter);
 app.use("/api/v1", keyboardRouter);
 app.use("/api/v1", cpuRouter);
 app.use("/api/v1", monitorRouter)
+
+/*app.get("/read-cookie", (req:Request, res:Response)=> {
+    const accessTokenValue = req.cookies.accessToken;
+    res.send(`${accessTokenValue}`)
+})*/
